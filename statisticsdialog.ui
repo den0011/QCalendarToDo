@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>StatisticsDialog</class>
+ <widget class="QDialog" name="StatisticsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Статистика и отчёты</string>
+  </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="generalTab">
+      <attribute name="title">
+       <string>Общая статистика</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="titleLabel">
+         <property name="text">
+          <string>&lt;h2&gt;Общая статистика базы данных&lt;/h2&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="cardsLayout">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="tasksCard">
+           <property name="title">
+            <string>Всего задач</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QLabel" name="totalTasksLabel">
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">font-size: 36px; font-weight: bold; color: #2196F3;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QGroupBox" name="datesCard">
+           <property name="title">
+            <string>Дат с записями</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QLabel" name="totalDatesLabel">
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">font-size: 36px; font-weight: bold; color: #4CAF50;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QGroupBox" name="notesCard">
+           <property name="title">
+            <string>Заметок</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QLabel" name="totalNotesLabel">
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">font-size: 36px; font-weight: bold; color: #FF9800;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="3">
+          <widget class="QGroupBox" name="sizeCard">
+           <property name="title">
+            <string>Размер базы данных</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QLabel" name="dbSizeLabel">
+              <property name="text">
+               <string>0 КБ</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">font-size: 36px; font-weight: bold; color: #9C27B0;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextBrowser" name="generalStatsText">
+         <property name="openExternalLinks">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="chartsTab">
+      <attribute name="title">
+       <string>Графики</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QLabel" name="chartsTitleLabel">
+         <property name="text">
+          <string>&lt;h2&gt;Визуализация данных&lt;/h2&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
+       </item>
+       <!-- Первый график -->
+       <item>
+        <widget class="QWidget" name="tasksChartContainer">
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QLabel" name="tasksChartLabel">
+            <property name="text">
+             <string>График задач по месяцам</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font-weight: bold; font-size: 14px; color: #333;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="tasksChartWidget" native="true">
+            <property name="minimumHeight">
+             <number>200</number>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: 1px solid #cccccc; border-radius: 4px; background-color: white;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <!-- Второй график -->
+       <item>
+        <widget class="QWidget" name="activityChartContainer">
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <widget class="QLabel" name="activityChartLabel">
+            <property name="text">
+             <string>Распределение задач по дням недели</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font-weight: bold; font-size: 14px; color: #333;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="activityChartWidget" native="true">
+            <property name="minimumHeight">
+             <number>200</number>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border: 1px solid #cccccc; border-radius: 4px; background-color: white;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="reportsTab">
+      <attribute name="title">
+       <string>Отчёты</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QLabel" name="reportsTitleLabel">
+         <property name="text">
+          <string>&lt;h2&gt;Отчёты за период&lt;/h2&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="periodLayout">
+         <item>
+          <widget class="QLabel" name="periodLabel">
+           <property name="text">
+            <string>Период с:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateEdit" name="reportStartDate">
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="toLabel">
+           <property name="text">
+            <string>по:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDateEdit" name="reportEndDate">
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="generateReportButton">
+           <property name="text">
+            <string>Сформировать отчёт</string>
+           </property>
+           <property name="objectName">
+            <string>generateButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextBrowser" name="reportText">
+         <property name="minimumHeight">
+          <number>300</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="exportReportButton">
+         <property name="text">
+          <string>Экспортировать отчёт в HTML</string>
+         </property>
+         <property name="objectName">
+          <string>exportButton</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="analysisTab">
+      <attribute name="title">
+       <string>Анализ</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QLabel" name="analysisTitleLabel">
+         <property name="text">
+          <string>&lt;h2&gt;Анализ продуктивности&lt;/h2&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextBrowser" name="analysisText"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
+        <string>Обновить</string>
+       </property>
+       <property name="objectName">
+        <string>refreshButton</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>Закрыть</string>
+       </property>
+       <property name="objectName">
+        <string>closeButton</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

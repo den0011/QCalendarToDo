@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>550</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Настройки</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="fontsTab">
+      <attribute name="title">
+       <string>Шрифты</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="tasksGroup">
+         <property name="title">
+          <string>Задачи и напоминания</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="labelFont">
+              <property name="text">
+               <string>Шрифт:</string>
+              </property>
+              <property name="minimumWidth">
+               <number>70</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFontComboBox" name="fontComboBoxTasks"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelSize">
+              <property name="text">
+               <string>Размер:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxTasks">
+              <property name="minimum">
+               <number>8</number>
+              </property>
+              <property name="maximum">
+               <number>72</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonTasks">
+              <property name="text">
+               <string>Применить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelPreview">
+            <property name="text">
+             <string>Предварительный просмотр:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="plainTextEditTasksPreview">
+            <property name="maximumHeight">
+             <number>80</number>
+            </property>
+            <property name="plainText">
+             <string>«Аа», «Бб», «Вв», «Гг», «Дд», «Ее», «Ёё», «Жж», «Зз», «Ии», «Йй», «Кк», «Лл», «Мм», «Нн», «Оо», «Пп», «Рр», «Сс», «Тт», «Уу», «Фф», «Хх», «Цц», «Чч», «Шш», «Щщ», «Ъъ», «Ыы», «Ьь», «Ээ», «Юю», «Яя».</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="notesGroup">
+         <property name="title">
+          <string>Заметки</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="labelFont2">
+              <property name="text">
+               <string>Шрифт:</string>
+              </property>
+              <property name="minimumWidth">
+               <number>70</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFontComboBox" name="fontComboBoxNotes"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelSize2">
+              <property name="text">
+               <string>Размер:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxNotes">
+              <property name="minimum">
+               <number>8</number>
+              </property>
+              <property name="maximum">
+               <number>72</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonNotes">
+              <property name="text">
+               <string>Применить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelPreview2">
+            <property name="text">
+             <string>Предварительный просмотр:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="plainTextEditNotesPreview">
+            <property name="maximumHeight">
+             <number>80</number>
+            </property>
+            <property name="plainText">
+             <string>«Аа», «Бб», «Вв», «Гг», «Дд», «Ее», «Ёё», «Жж», «Зз», «Ии», «Йй», «Кк», «Лл», «Мм», «Нн», «Оо», «Пп», «Рр», «Сс», «Тт», «Уу», «Фф», «Хх», «Цц», «Чч», «Шш», «Щщ», «Ъъ», «Ыы», «Ьь», «Ээ», «Юю», «Яя».</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="colorsTab">
+      <attribute name="title">
+       <string>Цвета</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QGroupBox" name="colorsGroup">
+         <property name="title">
+          <string>Цветовая схема задач</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelDoneColor">
+            <property name="text">
+             <string>Завершенные задачи:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButtonDoneColor">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>40</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="labelDoneDesc">
+            <property name="text">
+             <string>Цвет для прошедших задач</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelProgressColor">
+            <property name="text">
+             <string>Текущие задачи:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="pushButtonProgressColor">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>40</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="labelProgressDesc">
+            <property name="text">
+             <string>Цвет для предстоящих задач</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="notificationsTab">
+      <attribute name="title">
+       <string>Уведомления</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QGroupBox" name="notificationsGroup">
+         <property name="title">
+          <string>Настройки уведомлений</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="checkBoxSystemTray">
+            <property name="text">
+             <string>Всплывающие сообщения</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="labelDuration">
+              <property name="text">
+               <string>Длительность показа (сек):</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBoxTraySec">
+              <property name="minimum">
+               <number>2</number>
+              </property>
+              <property name="maximum">
+               <number>20</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelNotificationInfo">
+            <property name="text">
+             <string>Уведомления будут показываться при наступлении времени задачи</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: #666; font-style: italic;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
