@@ -4,7 +4,7 @@
 
 ## Скриншоты
 
-> _Добавьте скриншоты приложения сюда_
+![](https://github.com/den0011/QCalendarToDo/blob/main/111.jpg)
 
 ## Возможности
 
