@@ -1,5 +1,79 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QSet>
+#include <QSqlQuery>
+
+// ── CalendarDelegate ──────────────────────────────────────────────────────────
+void CalendarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QModelIndex &index) const
+{
+    bool isToday    = index.data(Qt::UserRole).toBool();
+    bool isWeekend  = index.data(Qt::UserRole + 1).toBool();
+    bool hasTasks   = index.data(Qt::UserRole + 2).toBool();
+
+    if (isToday) {
+        painter->save();
+        painter->fillRect(option.rect, ThemeManager::instance().accentColor());
+        QFont f = option.font;
+        f.setBold(true);
+        painter->setFont(f);
+        painter->setPen(Qt::white);
+        QRect textRect = option.rect.adjusted(0, 0, 0, hasTasks ? -6 : 0);
+        painter->drawText(textRect, Qt::AlignCenter, index.data().toString());
+        if (hasTasks) {
+            painter->setBrush(Qt::white);
+            painter->setPen(Qt::NoPen);
+            painter->drawEllipse(option.rect.center().x() - 2, option.rect.bottom() - 6, 4, 4);
+        }
+        painter->restore();
+    } else {
+        if (isWeekend) {
+            painter->save();
+            painter->fillRect(option.rect, QColor(220, 80, 80, 35));
+            painter->restore();
+        }
+        QStyledItemDelegate::paint(painter, option, index);
+        if (hasTasks && !index.data().toString().isEmpty()) {
+            painter->save();
+            painter->setBrush(ThemeManager::instance().accentColor());
+            painter->setPen(Qt::NoPen);
+            painter->drawEllipse(option.rect.center().x() - 2, option.rect.bottom() - 6, 4, 4);
+            painter->restore();
+        }
+    }
+}
+
+// ── TaskDelegate ──────────────────────────────────────────────────────────────
+void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    bool isNow = index.data(Qt::UserRole).toBool();
+
+    // Явно рисуем фон из BackgroundRole — минуем ограничение QSS
+    QVariant bgData = index.data(Qt::BackgroundRole);
+    if (bgData.isValid() && !(option.state & QStyle::State_Selected)) {
+        QBrush bgBrush = bgData.value<QBrush>();
+        if (bgBrush.style() != Qt::NoBrush) {
+            painter->fillRect(option.rect, bgBrush);
+            opt.backgroundBrush = QBrush(Qt::NoBrush);
+        }
+    }
+
+    QStyledItemDelegate::paint(painter, opt, index);
+
+    // Линия-индикатор текущего времени — рисуем в каждой ячейке строки
+    if (isNow) {
+        painter->save();
+        QPen pen(ThemeManager::instance().accentColor(), 2);
+        painter->setPen(pen);
+        painter->drawLine(option.rect.left(), option.rect.top(),
+                          option.rect.right(), option.rect.top());
+        painter->restore();
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +105,12 @@ MainWindow::MainWindow(QWidget *parent) :
     currentSelectedDate = QDate::currentDate();
     loadTasksForDate(currentSelectedDate);
     loadNotesForDate(currentSelectedDate);
+    refreshDbStats();
+    scrollToCurrentTime();
+
+    connect(ui->prevMonthButton, &QPushButton::clicked, this, &MainWindow::onPrevMonth);
+    connect(ui->nextMonthButton, &QPushButton::clicked, this, &MainWindow::onNextMonth);
+    connect(ui->todayButton,     &QPushButton::clicked, this, &MainWindow::onTodayClicked);
 
     QObject::connect(&timeUdate, &QTimer::timeout, this, &MainWindow::updateCellColors);
     timeUdate.start(1000);
@@ -138,7 +218,6 @@ MainWindow::~MainWindow()
 void MainWindow::setupSaveIndicator()
 {
     saveStatusLabel = new QLabel(this);
-    saveStatusLabel->setStyleSheet("QLabel { color: green; padding: 5px; }");
     ui->statusBar->addPermanentWidget(saveStatusLabel);
 
     saveStatusTimer = new QTimer(this);
@@ -167,6 +246,7 @@ void MainWindow::onTableItemChanged(QTableWidgetItem *item)
 {
     if (!isLoadingData && item) {
         saveTasksForCurrentDate();
+        refreshDbStats();
         showSaveStatus("Автосохранение выполнено", true);
     }
 }
@@ -291,7 +371,12 @@ void MainWindow::setParametrSettings()
 
 void MainWindow::setupUITableToDo()
 {
+    ui->tableWidgetToDo->setItemDelegate(new TaskDelegate(this));
     ui->tableWidgetToDo->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->tableWidgetToDo->setAlternatingRowColors(true);
+    ui->tableWidgetToDo->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->tableWidgetToDo, &QTableWidget::customContextMenuRequested,
+            this, &MainWindow::onTaskTableContextMenu);
     ui->tableWidgetToDo->setRowCount(96);
     ui->tableWidgetToDo->setColumnCount(3);
 
@@ -327,26 +412,48 @@ void MainWindow::updateCellColors()
 {
     QTime currentTime = QTime::currentTime();
     int done = 0, progress = 0;
+    int currentRow = currentTime.hour() * 4 + currentTime.minute() / 15;
 
     for (int row = 0; row < 96; ++row) {
         QTableWidgetItem *item1 = ui->tableWidgetToDo->item(row, 0);
         QTableWidgetItem *item2 = ui->tableWidgetToDo->item(row, 1);
+        QTableWidgetItem *item3 = ui->tableWidgetToDo->item(row, 2);
         if (item1 && item2) {
             QTableWidgetItem *headerItem = ui->tableWidgetToDo->verticalHeaderItem(row);
             QTime cellTime = QTime::fromString(headerItem->text(), "hh:mm");
-            if (cellTime <= currentTime) {
-                item1->setBackground(settings.done);
-                item2->setBackground(settings.done);
-                done++;
+            bool isPast = (cellTime <= currentTime);
+            if (isPast) done++; else progress++;
+
+            bool hasContent = !item1->text().isEmpty() || !item2->text().isEmpty()
+                              || (item3 && !item3->text().isEmpty());
+            QBrush rowBrush;
+            if (hasContent) {
+                rowBrush = isPast ? settings.done : settings.progress;
+            } else if (isPast) {
+                QColor tint = settings.done;
+                tint.setAlpha(55);
+                rowBrush = tint;
+            }
+            // future + empty: rowBrush остаётся дефолтным (alternating)
+
+            if (rowBrush.style() != Qt::NoBrush) {
+                item1->setBackground(rowBrush);
+                item2->setBackground(rowBrush);
+                if (item3) item3->setBackground(rowBrush);
             } else {
-                item1->setBackground(settings.progress);
-                item2->setBackground(settings.progress);
-                progress++;
+                item1->setData(Qt::BackgroundRole, QVariant());
+                item2->setData(Qt::BackgroundRole, QVariant());
+                if (item3) item3->setData(Qt::BackgroundRole, QVariant());
             }
 
-            if (row > lastDisplayedRow && cellTime <= currentTime) {
-                if (!item1->text().isEmpty() && !item2->text().isEmpty() &&
-                    settings.messages) {
+            // Маркер строки «сейчас» для делегата
+            bool isNow = (row == currentRow && currentSelectedDate == QDate::currentDate());
+            item1->setData(Qt::UserRole, isNow);
+            item2->setData(Qt::UserRole, isNow);
+            if (item3) item3->setData(Qt::UserRole, isNow);
+
+            if (row > lastDisplayedRow && isPast) {
+                if (!item1->text().isEmpty() && !item2->text().isEmpty() && settings.messages) {
                     trayIcon->show();
                     trayIcon->showMessage(item1->text(), item2->text(),
                                          QIcon(":/png/res/calendar.png"), settings.sec*1000);
@@ -358,10 +465,12 @@ void MainWindow::updateCellColors()
 
     pieSeries->slices().at(0)->setValue(done);
     pieSeries->slices().at(1)->setValue(progress);
-    pieSeries->slices().at(0)->setLabel(QString("Завершено: %1").arg(done));
-    pieSeries->slices().at(1)->setLabel(QString("В процессе: %1").arg(progress));
+    pieSeries->slices().at(0)->setLabel(QString("Завершено: %1 инт.").arg(done));
+    pieSeries->slices().at(1)->setLabel(QString("В процессе: %1 инт.").arg(progress));
     pieSeries->slices().at(0)->setColor(settings.done);
     pieSeries->slices().at(1)->setColor(settings.progress);
+
+    updateStatsPanel(done, progress);
 }
 
 void MainWindow::createPiChart()
@@ -397,8 +506,10 @@ void MainWindow::createCalendar()
     ui->tableWidgetCalendar->setColumnCount(7);
     ui->tableWidgetCalendar->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidgetCalendar->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidgetCalendar->setItemDelegate(new CalendarDelegate(this));
+    ui->plainTextEditNotes->setPlaceholderText("Введите заметку для выбранного дня...");
 
-    QStringList daysOfWeek = {"Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"};
+    QStringList daysOfWeek = {"Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"};
     ui->tableWidgetCalendar->setHorizontalHeaderLabels(daysOfWeek);
 
     updateCalendar();
@@ -411,7 +522,7 @@ void MainWindow::highlightCurrentDay()
 {
     QDate today = QDate::currentDate();
 
-    // Сбрасываем все выделения
+    // Сбрасываем UserRole у всех ячеек
     for (int row = 0; row < ui->tableWidgetCalendar->rowCount(); ++row) {
         for (int col = 0; col < ui->tableWidgetCalendar->columnCount(); ++col) {
             QTableWidgetItem *item = ui->tableWidgetCalendar->item(row, col);
@@ -419,13 +530,12 @@ void MainWindow::highlightCurrentDay()
                 QFont font = item->font();
                 font.setBold(false);
                 item->setFont(font);
-                item->setBackground(Qt::white);
-                item->setForeground(Qt::black);
+                item->setData(Qt::UserRole, false);
             }
         }
     }
 
-    // Выделяем текущий день
+    // Помечаем сегодняшний день через UserRole — CalendarDelegate нарисует акцентный цвет
     if (today.year() == currentYear && today.month() == currentMonth) {
         QDate date(currentYear, currentMonth, 1);
         int dayOfWeek = date.dayOfWeek();
@@ -439,8 +549,7 @@ void MainWindow::highlightCurrentDay()
             QFont font = item->font();
             font.setBold(true);
             item->setFont(font);
-            item->setBackground(QColor(100, 149, 237)); // CornflowerBlue
-            item->setForeground(Qt::white);
+            item->setData(Qt::UserRole, true);
         }
     }
 }
@@ -453,11 +562,30 @@ void MainWindow::updateCalendar()
 
     ui->tableWidgetCalendar->clearContents();
 
+    // Дни текущего месяца с задачами
+    QSet<int> daysWithTasks;
+    {
+        QString monthPrefix = QString("%1-%2-")
+            .arg(currentYear).arg(currentMonth, 2, 10, QChar('0'));
+        QSqlQuery q(manager.getDatabase());
+        q.prepare("SELECT date FROM Dates WHERE date LIKE ?");
+        q.addBindValue(monthPrefix + "%");
+        if (q.exec()) {
+            while (q.next()) {
+                QDate d = QDate::fromString(q.value(0).toString(), "yyyy-MM-dd");
+                if (d.isValid()) daysWithTasks.insert(d.day());
+            }
+        }
+    }
+
     for (int day = 1; day <= daysInMonth; ++day) {
         int row = (day + dayOfWeek - 2) / 7;
         int col = (day + dayOfWeek - 2) % 7;
         QTableWidgetItem *item = new QTableWidgetItem(QString::number(day));
         item->setTextAlignment(Qt::AlignCenter);
+        item->setData(Qt::UserRole,     false);                      // isToday (highlightCurrentDay заполнит)
+        item->setData(Qt::UserRole + 1, col >= 5);                   // isWeekend (Сб=5, Вс=6)
+        item->setData(Qt::UserRole + 2, daysWithTasks.contains(day)); // hasTasks
         ui->tableWidgetCalendar->setItem(row, col, item);
     }
 
@@ -504,6 +632,8 @@ void MainWindow::onDateChanged(const QDate &newDate)
     loadTasksForDate(newDate);
     loadNotesForDate(newDate);
     updateCalendar();
+    refreshDbStats();
+    scrollToCurrentTime();
     lastDisplayedRow = -1;
 }
 
@@ -543,12 +673,12 @@ bool MainWindow::restoreBackup(const QString &filePath)
 
     if (reply != QMessageBox::Yes) return false;
 
-    manager.~DatabaseManager();
     QString dbPath = "my_database.db";
+    manager.close(); // закрываем соединение перед заменой файла
     if (QFile::exists(dbPath)) QFile::remove(dbPath);
 
     if (QFile::copy(filePath, dbPath)) {
-        new (&manager) DatabaseManager();
+        manager.reset();
         loadTasksForDate(currentSelectedDate);
         loadNotesForDate(currentSelectedDate);
         showSaveStatus("Данные восстановлены из резервной копии", true);
@@ -570,7 +700,11 @@ bool MainWindow::exportToCSV(const QString &filePath)
     }
 
     QTextStream out(&file);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    out.setEncoding(QStringConverter::Utf8);
+#else
     out.setCodec("UTF-8");
+#endif
     out << "Дата;Время;Заголовок;Сообщение;Описание\n";
 
     QSqlQuery datesQuery(manager.getDatabase());
@@ -724,4 +858,105 @@ void MainWindow::onGreenTheme()
 {
     ThemeManager::instance().applyTheme(ThemeManager::GreenTheme);
     showSaveStatus("Применена зелёная тема", true);
+}
+
+void MainWindow::onTaskTableContextMenu(const QPoint &pos)
+{
+    int row = ui->tableWidgetToDo->rowAt(pos.y());
+    if (row < 0) return;
+
+    QMenu menu(this);
+    QAction *clearAction = menu.addAction("Очистить строку");
+    QAction *copyAction  = menu.addAction("Копировать в буфер обмена");
+
+    QAction *chosen = menu.exec(ui->tableWidgetToDo->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+
+    if (chosen == clearAction) {
+        isLoadingData = true;
+        for (int col = 0; col < 3; ++col) {
+            QTableWidgetItem *it = ui->tableWidgetToDo->item(row, col);
+            if (it) it->setText("");
+        }
+        isLoadingData = false;
+        saveTasksForCurrentDate();
+        refreshDbStats();
+        showSaveStatus("Строка очищена", true);
+
+    } else if (chosen == copyAction) {
+        QString time  = ui->tableWidgetToDo->verticalHeaderItem(row)
+                            ? ui->tableWidgetToDo->verticalHeaderItem(row)->text() : "";
+        auto cell = [&](int col) -> QString {
+            QTableWidgetItem *it = ui->tableWidgetToDo->item(row, col);
+            return it ? it->text() : "";
+        };
+        QApplication::clipboard()->setText(
+            QString("%1\t%2\t%3\t%4").arg(time, cell(0), cell(1), cell(2)));
+        showSaveStatus("Скопировано в буфер", true);
+    }
+}
+
+void MainWindow::scrollToCurrentTime()
+{
+    if (currentSelectedDate != QDate::currentDate()) return;
+    QTime now = QTime::currentTime();
+    int row = qMax(0, now.hour() * 4 + now.minute() / 15 - 2);
+    QTableWidgetItem *item = ui->tableWidgetToDo->item(row, 0);
+    if (item)
+        ui->tableWidgetToDo->scrollToItem(item, QAbstractItemView::PositionAtTop);
+}
+
+void MainWindow::onPrevMonth()
+{
+    QDate d(currentYear, currentMonth, 1);
+    d = d.addMonths(-1);
+    currentYear = d.year();
+    currentMonth = d.month();
+    updateCalendar();
+}
+
+void MainWindow::onNextMonth()
+{
+    QDate d(currentYear, currentMonth, 1);
+    d = d.addMonths(1);
+    currentYear = d.year();
+    currentMonth = d.month();
+    updateCalendar();
+}
+
+void MainWindow::onTodayClicked()
+{
+    ui->dateEdit->setDate(QDate::currentDate());
+}
+
+void MainWindow::updateStatsPanel(int done, int progress)
+{
+    // Временные метки — обновляются каждую секунду (без запросов к БД)
+    ui->labelStatCompleted->setText(QString("✓ Прошло: %1 интервалов").arg(done));
+    ui->labelStatInProgress->setText(QString("⏳ Впереди: %1 интервалов").arg(progress));
+}
+
+void MainWindow::refreshDbStats()
+{
+    QString dateStr = currentSelectedDate.toString("yyyy-MM-dd");
+
+    QSqlQuery qDay(manager.getDatabase());
+    qDay.prepare("SELECT COUNT(*) FROM Times WHERE date_id IN (SELECT id FROM Dates WHERE date = ?)");
+    qDay.addBindValue(dateStr);
+    int tasksDay = 0;
+    if (qDay.exec() && qDay.next()) tasksDay = qDay.value(0).toInt();
+
+    QSqlQuery qDates(manager.getDatabase());
+    int totalDates = 0;
+    if (qDates.exec("SELECT COUNT(*) FROM Dates") && qDates.next())
+        totalDates = qDates.value(0).toInt();
+
+    QSqlQuery qTasks(manager.getDatabase());
+    int totalTasks = 0;
+    if (qTasks.exec("SELECT COUNT(*) FROM Times") && qTasks.next())
+        totalTasks = qTasks.value(0).toInt();
+
+    ui->labelStatTasksDay->setText(QString("Задач выбранного дня: %1").arg(tasksDay));
+    ui->labelStatTotalDates->setText(QString("Активных дней: %1").arg(totalDates));
+    ui->labelStatTotalTasks->setText(QString("Задач в базе: %1").arg(totalTasks));
 }

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QApplication>
+#include <QColor>
 #include <QSettings>
 
 class ThemeManager
@@ -24,6 +25,8 @@ public:
 
     void saveTheme(QSettings &settings);
     void loadTheme(QSettings &settings);
+
+    QColor accentColor() const;
 
     static QString getLightTheme();
     static QString getDarkTheme();

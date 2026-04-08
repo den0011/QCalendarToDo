@@ -56,6 +56,16 @@ void ThemeManager::loadTheme(QSettings &settings)
     loadTheme(themeName);
 }
 
+QColor ThemeManager::accentColor() const
+{
+    switch (m_currentTheme) {
+        case DarkTheme:  return QColor("#1976D2");
+        case BlueTheme:  return QColor("#1565C0");
+        case GreenTheme: return QColor("#388E3C");
+        default:         return QColor("#2196F3");
+    }
+}
+
 QString ThemeManager::getThemeStyleSheet(Theme theme)
 {
     switch (theme) {
@@ -227,11 +237,16 @@ QDateEdit:focus, QSpinBox:focus, QComboBox:focus {
     padding: 5px 7px;
 }
 
-QDateEdit::drop-down, QSpinBox::up-button, QSpinBox::down-button,
-QComboBox::drop-down {
+QSpinBox::up-button, QSpinBox::down-button {
     border: none;
     background-color: transparent;
-    width: 24px;
+    width: 16px;
+}
+
+QDateEdit::drop-down, QComboBox::drop-down {
+    border-left: 1px solid rgba(128, 128, 128, 0.35);
+    background-color: rgba(128, 128, 128, 0.12);
+    width: 20px;
 }
 
 QComboBox QAbstractItemView {
@@ -613,11 +628,16 @@ QDateEdit:focus, QSpinBox:focus, QComboBox:focus {
     padding: 5px 7px;
 }
 
-QDateEdit::drop-down, QSpinBox::up-button, QSpinBox::down-button,
-QComboBox::drop-down {
+QSpinBox::up-button, QSpinBox::down-button {
     border: none;
     background-color: transparent;
-    width: 24px;
+    width: 16px;
+}
+
+QDateEdit::drop-down, QComboBox::drop-down {
+    border-left: 1px solid rgba(128, 128, 128, 0.35);
+    background-color: rgba(128, 128, 128, 0.12);
+    width: 20px;
 }
 
 QComboBox QAbstractItemView {
@@ -1002,11 +1022,16 @@ QDateEdit:focus, QSpinBox:focus, QComboBox:focus {
     padding: 5px 7px;
 }
 
-QDateEdit::drop-down, QSpinBox::up-button, QSpinBox::down-button,
-QComboBox::drop-down {
+QSpinBox::up-button, QSpinBox::down-button {
     border: none;
     background-color: transparent;
-    width: 24px;
+    width: 16px;
+}
+
+QDateEdit::drop-down, QComboBox::drop-down {
+    border-left: 1px solid rgba(128, 128, 128, 0.35);
+    background-color: rgba(128, 128, 128, 0.12);
+    width: 20px;
 }
 
 QComboBox QAbstractItemView {
@@ -1390,11 +1415,16 @@ QDateEdit:focus, QSpinBox:focus, QComboBox:focus {
     padding: 5px 7px;
 }
 
-QDateEdit::drop-down, QSpinBox::up-button, QSpinBox::down-button,
-QComboBox::drop-down {
+QSpinBox::up-button, QSpinBox::down-button {
     border: none;
     background-color: transparent;
-    width: 24px;
+    width: 16px;
+}
+
+QDateEdit::drop-down, QComboBox::drop-down {
+    border-left: 1px solid rgba(128, 128, 128, 0.35);
+    background-color: rgba(128, 128, 128, 0.12);
+    width: 20px;
 }
 
 QComboBox QAbstractItemView {

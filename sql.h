@@ -29,6 +29,7 @@ public:
     {
         QString connectionName = db.connectionName();
         db.close();
+        db = QSqlDatabase(); // снимаем ссылку до removeDatabase
         QSqlDatabase::removeDatabase(connectionName);
     }
 
@@ -113,6 +114,32 @@ public:
             }
         }
         return true;
+    }
+
+    void close()
+    {
+        QString connectionName = db.connectionName();
+        db.close();
+        db = QSqlDatabase(); // снимаем ссылку до removeDatabase
+        QSqlDatabase::removeDatabase(connectionName);
+    }
+
+    void reset(const QString &databaseName = "my_database.db")
+    {
+        QString connectionName = db.connectionName();
+        db.close();
+        db = QSqlDatabase(); // снимаем ссылку до removeDatabase
+        QSqlDatabase::removeDatabase(connectionName);
+        db = QSqlDatabase::addDatabase("QSQLITE", "calendar_connection");
+        db.setDatabaseName(databaseName);
+        if (!db.open()) {
+            qDebug() << "Ошибка при открытии базы данных:" << db.lastError().text();
+            QMessageBox::critical(nullptr,
+                                  QObject::tr("Ошибка открытия базы"),
+                                  db.lastError().text());
+            return;
+        }
+        createTables();
     }
 
     int ensureDateExists(const QString &date)

@@ -48,7 +48,7 @@
                <string>0</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">font-size: 36px; font-weight: bold; color: #2196F3;</string>
+               <string notr="true">font-size: 36px; font-weight: bold;</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -70,7 +70,7 @@
                <string>0</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">font-size: 36px; font-weight: bold; color: #4CAF50;</string>
+               <string notr="true">font-size: 36px; font-weight: bold;</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -92,7 +92,7 @@
                <string>0</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">font-size: 36px; font-weight: bold; color: #FF9800;</string>
+               <string notr="true">font-size: 36px; font-weight: bold;</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -114,7 +114,7 @@
                <string>0 КБ</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">font-size: 36px; font-weight: bold; color: #9C27B0;</string>
+               <string notr="true">font-size: 36px; font-weight: bold;</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -160,7 +160,7 @@
              <string>График задач по месяцам</string>
             </property>
             <property name="styleSheet">
-             <string notr="true">font-weight: bold; font-size: 14px; color: #333;</string>
+             <string notr="true">font-weight: bold; font-size: 14px;</string>
             </property>
            </widget>
           </item>
@@ -168,9 +168,6 @@
            <widget class="QWidget" name="tasksChartWidget" native="true">
             <property name="minimumHeight">
              <number>200</number>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">border: 1px solid #cccccc; border-radius: 4px; background-color: white;</string>
             </property>
            </widget>
           </item>
@@ -187,7 +184,7 @@
              <string>Распределение задач по дням недели</string>
             </property>
             <property name="styleSheet">
-             <string notr="true">font-weight: bold; font-size: 14px; color: #333;</string>
+             <string notr="true">font-weight: bold; font-size: 14px;</string>
             </property>
            </widget>
           </item>
@@ -195,9 +192,6 @@
            <widget class="QWidget" name="activityChartWidget" native="true">
             <property name="minimumHeight">
              <number>200</number>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">border: 1px solid #cccccc; border-radius: 4px; background-color: white;</string>
             </property>
            </widget>
           </item>
@@ -256,9 +250,6 @@
            <property name="text">
             <string>Сформировать отчёт</string>
            </property>
-           <property name="objectName">
-            <string>generateButton</string>
-           </property>
           </widget>
          </item>
          <item>
@@ -287,9 +278,6 @@
         <widget class="QPushButton" name="exportReportButton">
          <property name="text">
           <string>Экспортировать отчёт в HTML</string>
-         </property>
-         <property name="objectName">
-          <string>exportButton</string>
          </property>
         </widget>
        </item>

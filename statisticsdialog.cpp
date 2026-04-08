@@ -1,5 +1,6 @@
 #include "statisticsdialog.h"
 #include "ui_statisticsdialog.h"
+#include "thememanager.h"
 #include <QSqlQuery>
 #include <QFile>
 #include <QFileDialog>
@@ -19,6 +20,17 @@ StatisticsDialog::StatisticsDialog(QSqlDatabase &db, QWidget *parent) :
     database(db)
 {
     ui->setupUi(this);
+
+    // Применяем цвета карточек статистики с учётом темы
+    bool isDark = (ThemeManager::instance().currentTheme() == ThemeManager::DarkTheme);
+    QString colTasks  = isDark ? "#42A5F5" : "#2196F3";
+    QString colDates  = isDark ? "#66BB6A" : "#4CAF50";
+    QString colNotes  = isDark ? "#FFA726" : "#FF9800";
+    QString colDbSize = isDark ? "#AB47BC" : "#9C27B0";
+    ui->totalTasksLabel->setStyleSheet(QString("font-size: 36px; font-weight: bold; color: %1;").arg(colTasks));
+    ui->totalDatesLabel->setStyleSheet(QString("font-size: 36px; font-weight: bold; color: %1;").arg(colDates));
+    ui->totalNotesLabel->setStyleSheet(QString("font-size: 36px; font-weight: bold; color: %1;").arg(colNotes));
+    ui->dbSizeLabel->setStyleSheet(QString("font-size: 36px; font-weight: bold; color: %1;").arg(colDbSize));
 
     // Устанавливаем начальные даты
     ui->reportStartDate->setDate(QDate::currentDate().addMonths(-1));
@@ -409,7 +421,9 @@ void StatisticsDialog::exportReport()
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         out.setCodec("UTF-8");
+#endif
         out << ui->reportText->toHtml();
         file.close();
 

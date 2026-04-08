@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QStyledItemDelegate>
+#include <QPainter>
 #include <QMainWindow>
 #include <QTime>
 #include <QSystemTrayIcon>
@@ -13,6 +15,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QColorDialog>
+#include <QMenu>
+#include <QClipboard>
+#include <QApplication>
 
 #include "settings.h"
 #include "sql.h"
@@ -20,6 +25,22 @@
 #include "statisticsdialog.h"
 #include "settingsdialog.h"
 #include "thememanager.h"
+
+// Делегат для календаря — рисует сегодняшнюю ячейку акцентным цветом темы
+class CalendarDelegate : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+};
+
+// Делегат для таблицы задач — явно рисует фон из Qt::BackgroundRole, минуя QSS
+class TaskDelegate : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+};
 
 namespace Ui {
 class MainWindow;
@@ -77,6 +98,9 @@ private:
     bool exportToCSV(const QString &filePath);
 
     void highlightCurrentDay();
+    void updateStatsPanel(int done, int progress);
+    void refreshDbStats();
+    void scrollToCurrentTime();
 
 private slots:
     void updateCellColors();
@@ -100,6 +124,11 @@ private slots:
     void onStatisticsTriggered();
     void onSettingsTriggered();
     void applySettings();
+
+    void onPrevMonth();
+    void onNextMonth();
+    void onTodayClicked();
+    void onTaskTableContextMenu(const QPoint &pos);
 
     void onLightTheme();
     void onDarkTheme();
